@@ -46,14 +46,27 @@ class sys11sensu::profile::server(
     ensure => $uchiwa_version,
   }
 
-  file {'/etc/sensu/uchiwa.js':
-    ensure  => file,
-    mode    => 444,
-    content => template("$module_name/uchiwa.json.erb"),
-  } ~>
+  if versioncmp($uchiwa_version, '0.2.0') > 0 {
+    # new .json for > 0.2
+    file {'uchiwa.config':
+      ensure  => file,
+      path    => '/etc/sensu/uchiwa.json',
+      mode    => 444,
+      content => template("$module_name/uchiwa.json.erb"),
+      notify  => Service['uchiwa'],
+    } 
+  } else {
+    file {'uchiwa.config':
+      ensure  => file,
+      path    => '/etc/sensu/uchiwa.js',
+      mode    => 444,
+      content => template("$module_name/uchiwa.js.erb"),
+      notify  => Service['uchiwa'],
+    }
+  }
 
   service {'uchiwa':
-    ensure => running,
-    enable => true,
+    ensure    => running,
+    enable    => true,
   }
 }
