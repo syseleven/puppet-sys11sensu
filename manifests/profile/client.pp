@@ -29,6 +29,7 @@ class sys11sensu::profile::client(
     #subscriptions       => 'sensu-test',
     safe_mode            => $safe_mode,
     sensu_plugin_version => installed,
+    purge_config         => true,
   }
 
   # iso9660 is /config metadata filesystem, it always is 100%
