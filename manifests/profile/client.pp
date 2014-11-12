@@ -21,7 +21,7 @@ class sys11sensu::profile::client(
     source   => 'https://github.com/sensu/sensu-community-plugins.git',
   }
 
-  if $::is_virtual and $::openstack_floating_ip {
+  if $::is_virtual == 'true' and $::openstack_floating_ip {
     $client_address = $::openstack_floating_ip
   } else {
     $client_address = $::ipaddress
