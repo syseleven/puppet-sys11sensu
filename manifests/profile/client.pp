@@ -9,16 +9,22 @@ class sys11sensu::profile::client(
   # needed for sensu-plugin
   package {'ruby-dev':
     ensure => latest,
-  }  
+  }
 
   package {'nagios-plugins-basic':
     ensure => latest,
   }
 
-  vcsrepo { "/opt/sensu-community-plugins":
+  vcsrepo { '/opt/sensu-community-plugins':
     ensure   => present,
     provider => git,
     source   => 'https://github.com/sensu/sensu-community-plugins.git',
+  }
+
+  if $::is_virtual and $::openstack_floating_ip {
+    $client_address = $::openstack_floating_ip
+  } else {
+    $client_address = $::ipaddress
   }
 
   class { 'sensu':
@@ -30,6 +36,7 @@ class sys11sensu::profile::client(
     safe_mode            => $safe_mode,
     sensu_plugin_version => installed,
     purge_config         => true,
+    client_address       => $client_address,
   }
 
   # iso9660 is /config metadata filesystem, it always is 100%
