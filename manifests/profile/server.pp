@@ -15,6 +15,12 @@ class sys11sensu::profile::server(
     source   => 'https://github.com/sensu/sensu-community-plugins.git',
   }
 
+  if $::is_virtual and $::openstack_floating_ip {
+    $client_address = $::openstack_floating_ip
+  } else {
+    $client_address = $::ipaddress
+  }
+
   class { '::sensu':
     rabbitmq_password => $rabbitmq_password,
     rabbitmq_user     => $rabbitmq_user,
@@ -22,6 +28,7 @@ class sys11sensu::profile::server(
     server            => true,
     api               => true,
     sensu_plugin_version => installed,
+    client_address       => $client_address,
     #safe_mode        => false,
     #plugins          => [
     #  'puppet:///data/sensu/plugins/ntp.rb',
