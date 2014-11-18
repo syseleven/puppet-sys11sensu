@@ -39,11 +39,6 @@ class sys11sensu::profile::client(
     client_address       => $client_address,
   }
 
-  # iso9660 is /config metadata filesystem, it always is 100%
-  sensu::check { "diskspace":
-    command => '/opt/sensu-community-plugins/plugins/system/check-disk.rb -x iso9660',
-  }
-
   # currently broken in upstream module, always retriggers the subscription
   #sensu::subscription { 'ntp': }
 }
