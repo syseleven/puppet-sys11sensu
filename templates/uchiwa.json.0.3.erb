@@ -1,0 +1,21 @@
+{
+  "sensu": [
+    {
+    "name": "<%= @site_name %>",
+      "host": "127.0.0.1",
+      "port": 4567,
+      "ssl": false,
+      "path": "",
+      "user": "",
+      "pass": "",
+      "timeout": 5
+    }
+  ],
+  "uchiwa": {
+    "user": "",
+    "pass": "",
+    "host": "0.0.0.0",
+    "port": <%= @uchiwa_port %>,
+    "interval": 5
+  }
+}
