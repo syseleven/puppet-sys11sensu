@@ -21,6 +21,13 @@ class sys11sensu::profile::server(
     $client_address = $::ipaddress
   }
 
+  if $::openstack_stack_name {
+    $site_name = $::openstack_stack_name
+  } else {
+    $site_name = 'localhost'
+  }
+
+
   class { '::sensu':
     rabbitmq_password => $rabbitmq_password,
     rabbitmq_user     => $rabbitmq_user,
@@ -53,20 +60,29 @@ class sys11sensu::profile::server(
     ensure => $uchiwa_version,
   }
 
-  if versioncmp($uchiwa_version, '0.2.0') > 0 {
+
+  if versioncmp($uchiwa_version, '0.3.0') > 0 {
+    file {'uchiwa.config':
+      ensure  => file,
+      path    => '/etc/sensu/uchiwa.json',
+      mode    => '0444',
+      content => template("$module_name/uchiwa.json.0.3.erb"),
+      notify  => Service['uchiwa'],
+    }
+  } elsif versioncmp($uchiwa_version, '0.2.0') > 0 {
     # new .json for > 0.2
     file {'uchiwa.config':
       ensure  => file,
       path    => '/etc/sensu/uchiwa.json',
-      mode    => 444,
+      mode    => '0444',
       content => template("$module_name/uchiwa.json.erb"),
       notify  => Service['uchiwa'],
-    } 
+    }
   } else {
     file {'uchiwa.config':
       ensure  => file,
       path    => '/etc/sensu/uchiwa.js',
-      mode    => 444,
+      mode    => '0444',
       content => template("$module_name/uchiwa.js.erb"),
       notify  => Service['uchiwa'],
     }
