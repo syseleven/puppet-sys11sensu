@@ -15,8 +15,8 @@ class sys11sensu::profile::server::handlers::mailer(
   } 
 
   exec {'mailer-gem':
-    command     => 'gem1.9.3 install mailer --no-rdoc --no-ri',
-    unless      => 'gem1.9.3 list mailer | grep mailer',
+    command     => 'gem1.9.3 install mail --no-rdoc --no-ri',
+    unless      => 'gem1.9.3 list mail | grep mail',
     path        => '/bin:/usr/bin',
   }
 
