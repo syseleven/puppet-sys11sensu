@@ -20,7 +20,7 @@ class sys11sensu::profile::server::handlers::hipchat(
     path        => '/bin:/usr/bin',
   }
 
-  sensu::handler {'hipchat_handler':
+  sensu::handler {'hipchat':
     command => '/etc/sensu/handlers/hipchat.rb',
     type    => 'pipe',
   }

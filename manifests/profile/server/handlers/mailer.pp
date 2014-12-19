@@ -20,7 +20,7 @@ class sys11sensu::profile::server::handlers::mailer(
     path        => '/bin:/usr/bin',
   }
 
-  sensu::handler {'mailer_handler':
+  sensu::handler {'mailer':
       command => '/etc/sensu/handlers/mailer.rb',
       type    => 'pipe',
   }
