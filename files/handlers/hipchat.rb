@@ -18,7 +18,8 @@ class HipChatNotif < Sensu::Handler
     room = settings["hipchat"]["room"]
     from = settings["hipchat"]["from"] || 'Sensu'
 
-    message = @event['check']['notification'] || @event['check']['output']
+    output = "#{@event['check']['output']}".gsub(/(-p|-P|--password)\s*\S+/, '\1 <password redacted>')
+    message = @event['check']['notification'] || output
 
     begin
       metadata_file = File.read('/config/openstack/latest/meta_data.json')
