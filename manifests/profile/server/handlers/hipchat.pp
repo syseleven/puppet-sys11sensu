@@ -1,8 +1,6 @@
 class sys11sensu::profile::server::handlers::hipchat(
   $settings,
 ) {
-  require sys11sensu::profile::server::handlers_dep
-
   file {'/etc/sensu/conf.d/handlers/hipchat_settings.json':
     ensure  => file,
     mode    => '0444',

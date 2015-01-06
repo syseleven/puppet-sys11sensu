@@ -7,6 +7,7 @@ class sys11sensu::profile::server::handlers(
   }
 
   if $default_handlers {
+    require sys11sensu::profile::server::sensu_plugin_gem
     sensu::handler {'default':
       command  => true,
       type     => 'set',
