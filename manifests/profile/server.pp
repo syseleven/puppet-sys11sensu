@@ -8,6 +8,7 @@ class sys11sensu::profile::server(
 ) {
   include sys11sensu::profile::server::handlers
   include sys11sensu::profile::server::checks
+  include sys11sensu::profile::server::stashnotifier
 
   vcsrepo { "/opt/sensu-community-plugins":
     ensure   => present,
