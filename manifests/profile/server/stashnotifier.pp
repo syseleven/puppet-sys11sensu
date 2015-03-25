@@ -16,6 +16,15 @@ class sys11sensu::profile::server::stashnotifier(
     notify  => Service['stashnotifier'],
   }
 
+  file { '/etc/sensu/stash_notifier_logging.cfg':
+    ensure => file,
+    mode   => '0444',
+    owner  => root,
+    group  => root,
+    source => "puppet:///modules/$module_name/stash_notifier_logging.cfg",
+    notify => Service['stashnotifier'],
+  }
+
   include apt
 
   apt::ppa { 'ppa:syseleven-platform/sensu':
@@ -30,5 +39,11 @@ class sys11sensu::profile::server::stashnotifier(
     ensure  => running,
     enable  => true,
     require => Package['python-sys11.sensu.stash'],
+  }
+
+  file_line { 'redis keyspace events':
+    path   => '/etc/redis/redis.conf',
+    line   => 'notify-keyspace-events KAE',
+    notify => Service['redis-server'],
   }
 }
