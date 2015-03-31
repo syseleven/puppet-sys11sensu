@@ -1,10 +1,11 @@
 #!/usr/bin/env ruby1.9.3
 #
-# Sensu Handler: mailer
+# Sensu Handler: stasher
 #
-# This handler formats alerts as mails and sends them off to a pre-defined recipient.
+# This handler removes stashes of services coming back to OK.
+# So new errors on a service won't be ignored silently.
 #
-# Copyright 2012 Pal-Kristian Hamre (https://github.com/pkhamre | http://twitter.com/pkhamre)
+# Copyright 2015 Christoph Glaubitz <c.glaubitz@syseleven.de>
 #
 # Released under the same terms as Sensu (the MIT license); see LICENSE
 # for details.
