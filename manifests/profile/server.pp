@@ -47,7 +47,13 @@ class sys11sensu::profile::server(
   #  command => 'mail -s \'sensu alert\' ops@foo.com',
   #}
 
+  # there is no purge on type sensu_check
   sensu::check { 'check_ntp':
+    ensure  => absent,
+    command => '/dev/null',
+  }
+
+  sensu::check { 'ntp':
     command     => 'PATH=$PATH:/usr/lib/nagios/plugins check_ntp_time -H pool.ntp.org -w 30 -c 60',
     #handlers   => 'default',
     subscribers => 'ntp',
