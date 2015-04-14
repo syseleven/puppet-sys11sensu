@@ -5,7 +5,7 @@ class sys11sensu::profile::server::stashnotifier(
   $uchiwa_url = hiera('sys11sensu::stashnotifier::uchiwa_url', undef),
   $redis_host = hiera('sys11sensu::stashnotifier::redis_host', 'localhost'),
   $redis_port = hiera('sys11sensu::stashnotifier::redis_port', '6379'),
-  $notifier = hiera('sys11sensu::stashnotifier::notifier', 'mailnotifier'),
+  $notifier = hiera('sys11sensu::stashnotifier::notifier', 'noopnotifier'),
 ) {
   file { '/etc/sensu/stash_notifier.cfg':
     ensure  => file,
