@@ -1,0 +1,11 @@
+[DEFAULT]
+redis_host = <%= @redis_host %>
+redis_port = <%= @redis_port %>
+notifier = <%= @notifier %>
+
+[mailnotifier]
+from = <%= @from_addr %>
+to = <%= @to_addr %>
+<% if @uchiwa_url != '' -%>
+uchiwa_url = <%= @uchiwa_url %>
+<% end -%>

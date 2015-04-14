@@ -5,9 +5,13 @@ class sys11sensu::profile::server(
   $rabbitmq_vhost = hiera('sys11sensu::rabbitmq_vhost', undef),
   $uchiwa_port = hiera('sys11sensu::uchiwa_port', 3001),
   $uchiwa_version = hiera('sys11sensu::uchiwa_version', installed),
+  $stashnotifier_enabled = hiera('sys11sensu::stashnotifier::enabled', false),
 ) {
   include sys11sensu::profile::server::handlers
   include sys11sensu::profile::server::checks
+  if $stashnotifier_enabled {
+    include sys11sensu::profile::server::stashnotifier
+  }
 
   vcsrepo { "/opt/sensu-community-plugins":
     ensure   => present,
