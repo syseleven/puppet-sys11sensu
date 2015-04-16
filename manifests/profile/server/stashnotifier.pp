@@ -25,10 +25,7 @@ class sys11sensu::profile::server::stashnotifier(
     notify => Service['stashnotifier'],
   }
 
-  include apt
-
-  apt::ppa { 'ppa:syseleven-platform/sensu':
-  }
+  include sys11sensu::profile::server::ppa
 
   package { 'python-sys11.sensu.stash':
     ensure  => latest,

@@ -12,6 +12,7 @@ class sys11sensu::profile::server(
   if $stashnotifier_enabled {
     include sys11sensu::profile::server::stashnotifier
   }
+  include sys11sensu::profile::server::cli
 
   vcsrepo { "/opt/sensu-community-plugins":
     ensure   => present,
