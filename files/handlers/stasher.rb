@@ -22,15 +22,24 @@ class Stasher < Sensu::Handler
   end
 
   def handle
-    stash = '/silence/' + @event['client']['name'] + '/' + @event['check']['name']
-    if @event['action'].eql?('resolve') and stash_exists?(stash)
-      begin
-        timeout(2) do
-          api_request(:DELETE, '/stash' + stash)
-          puts "deleted stash " + stash
+    if @event['action'].eql?('resolve')
+      stashes = Array.new
+      stashes.push('/silence/' + @event['client']['name'] + '/' + @event['check']['name'])
+      # if the resolved check is 'keepalive', remove the stash of the entire host.
+      if @event['check']['name'].eql?('keepalive')
+        stashes.push('/silence/' + @event['client']['name'])
+      end
+      stashes.each do |stash|
+        if stash_exists?(stash)
+          begin
+            timeout(2) do
+              api_request(:DELETE, '/stash' + stash)
+              puts "deleted stash " + stash
+            end
+          rescue Timeout::Error
+            puts "timed out while attempting to delete the stash"
+          end
         end
-      rescue Timeout::Error
-        puts "timed out while attempting to delete the stash"
       end
     end
   end
