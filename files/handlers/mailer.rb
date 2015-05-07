@@ -27,7 +27,10 @@ module ::Mail
   end
 end
 
-class Mailer < Sensu::Handler
+# load sys11handler
+require "#{File.dirname(__FILE__)}/sys11"
+
+class Mailer < Sys11Handler
 
   option :json_config,
    :description => 'Config Name',
