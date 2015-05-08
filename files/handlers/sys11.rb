@@ -77,8 +77,6 @@ class Sys11Handler < Sensu::Handler
       end
     end
 
-    puts volatile
-    puts @event['action']
     if volatile and @event['action'] == 'resolve'
       bail 'Do not handle resolve action for volatile check'
     end
