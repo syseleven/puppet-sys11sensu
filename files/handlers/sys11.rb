@@ -51,6 +51,16 @@ class Sys11Handler < Sensu::Handler
       realert_every = -1
     end
 
+    # volatile checks repair themselfs, after a second check they always be
+    # okay again, so if volatile is set to true, omit the recovery state
+    # default: false
+    if @event['check']['volatile'].to_s.length > 0
+      volatile = @event['check']['volatile']
+    else
+      volatile = false
+    end
+
+
     # only alert on this number of occurrence
     # default on all occurrences
     alert_on_occurrence = @event['check']['alert_on_occurrence'].to_i || -1
@@ -65,6 +75,12 @@ class Sys11Handler < Sensu::Handler
       if occurrences != alert_on_occurrence and @event['action'] == 'create'
         bail "Only handling #{alert_on_occurrence} occurrences and we are at #{occurrences}"
       end
+    end
+
+    puts volatile
+    puts @event['action']
+    if volatile and @event['action'] == 'resolve'
+      bail 'Do not handle resolve action for volatile check'
     end
 
     # Don't bother acting if we haven't hit the 
