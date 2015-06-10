@@ -6,11 +6,6 @@ class sys11sensu::profile::client(
   $safe_mode = hiera('sys11sensu::client::safe_mode', false),
 ) {
 
-  # needed for sensu-plugin
-  package {'ruby-dev':
-    ensure => latest,
-  }
-
   package {'nagios-plugins-basic':
     ensure => latest,
   }
