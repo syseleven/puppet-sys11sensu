@@ -12,10 +12,30 @@
     }
   ],
   "uchiwa": {
-    "user": "",
-    "pass": "",
-    "host": "0.0.0.0",
     "port": <%= @uchiwa_port %>,
-    "interval": 5
+    "stats": 10,
+<% if uchiwa_admin_password or uchiwa_guest_password -%>
+    "users": [
+    <% if uchiwa_admin_password -%>
+      {
+        "username" : "<%= @uchiwa_admin_user %>",
+        "password": "<%= @uchiwa_admin_password %>",
+        "role": {
+          "readonly": false
+        }
+      }<%- if uchiwa_admin_password and uchiwa_guest_password -%>,<%- end -%>
+    <% end -%>
+    <% if uchiwa_guest_password -%>
+      {
+        "username" : "<%= @uchiwa_guest_user %>",
+        "password": "<%= @uchiwa_guest_password %>",
+        "role": {
+          "readonly": true
+        }
+      }
+    <% end %>
+    ],
+<% end -%>
+    "refresh": 10000
   }
 }
