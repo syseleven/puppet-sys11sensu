@@ -5,6 +5,10 @@ class sys11sensu::profile::server(
   $rabbitmq_vhost = hiera('sys11sensu::rabbitmq_vhost', undef),
   $uchiwa_port = hiera('sys11sensu::uchiwa_port', 3001),
   $uchiwa_version = hiera('sys11sensu::uchiwa_version', installed),
+  $uchiwa_admin_user = hiera('sys11sensu::uchiwa_admin_user', admin),
+  $uchiwa_admin_password = hiera('sys11sensu::uchiwa_admin_password', undef),
+  $uchiwa_guest_user = hiera('sys11sensu::uchiwa_guest_user', guest),
+  $uchiwa_guest_password = hiera('sys11sensu::uchiwa_guest_password', undef),
   $stashnotifier_enabled = hiera('sys11sensu::stashnotifier::enabled', false),
 ) {
   include sys11sensu::profile::server::handlers
