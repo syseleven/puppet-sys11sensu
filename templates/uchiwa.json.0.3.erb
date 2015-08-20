@@ -1,45 +1,41 @@
 {
   "sensu": [
     {
-      "name": "<%= site_name %>",
-      "host": "<%= uchiwa_site_host %>",
-      "port": <%= uchiwa_site_port %>,
-      "ssl": <%= uchiwa_site_ssl %>,
-      "path": "<%= uchiwa_site_path %>",
-      "user": "<%= uchiwa_site_user %>",
-      "pass": "<%= uchiwa_site_pass %>",
-      "timeout": <%= uchiwa_site_timeout %>
+    "name": "<%= @site_name %>",
+      "host": "127.0.0.1",
+      "port": 4567,
+      "ssl": false,
+      "path": "",
+      "user": "",
+      "pass": "",
+      "timeout": 5
     }
   ],
   "uchiwa": {
     "port": <%= @uchiwa_port %>,
-    "stats": <%= @uchiwa_stats %>,
-<% if @uchiwa_admins != {} or @uchiwa_users != {} -%>
+    "stats": 10,
+<% if @uchiwa_admin_password  != '' or @uchiwa_guest_password  != '' -%>
     "users": [
-<% if @uchiwa_admins != {} -%>
-<% @uchiwa_admins.each_with_index do |userdata, i| -%>
+<% unless @uchiwa_admin_password  == '' -%>
       {
-        "username" : "<%= userdata[0] %>",
-        "password": "<%= userdata[1] %>",
+        "username" : "<%= @uchiwa_admin_user %>",
+        "password": "<%= @uchiwa_admin_password %>",
         "role": {
           "readonly": false
         }
-      }<%= ',' if i < (uchiwa_admins.size - 1) or uchiwa_users.size > 0 %>
+      }<% if @uchiwa_admin_password  != '' and @uchiwa_guest_password  != '' -%>,<% end %>
 <% end -%>
-<% end -%>
-<% if @uchiwa_users != {} -%>
-<% @uchiwa_users.each_with_index do |userdata, i| -%>
+<% unless @uchiwa_guest_password == '' -%>
       {
-        "username" : "<%= userdata[0] %>",
-        "password": "<%= userdata[1] %>",
+        "username" : "<%= @uchiwa_guest_user %>",
+        "password": "<%= @uchiwa_guest_password %>",
         "role": {
           "readonly": true
         }
-      }<%= ',' if i < (uchiwa_users.size - 1) %>
-<% end -%>
+      }
 <% end -%>
     ],
 <% end -%>
-    "refresh": <%= uchiwa_refresh %>
+    "refresh": 10000
   }
 }
