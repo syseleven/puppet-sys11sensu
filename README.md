@@ -30,4 +30,8 @@ Sys11wrapper for Sensu monitoring
       smtp_port: '25'
       smtp_domain: 'sensu.bka.cloud.syseleven.net'
     sys11monitoring::profile::generic_host::check_reboot_needed: false
-    sys11sensu::uchiwa_admin_password: 'spaceball1'
+    sys11sensu::uchiwa_admins:
+      'admin1': 'pw1'
+      'admin2': 'pw2'
+    sys11sensu::uchiwa_users:
+      'user1': 'pw1'
