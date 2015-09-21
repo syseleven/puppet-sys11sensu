@@ -48,7 +48,7 @@ class Sys11Handler < Sensu::Handler
     if @event['check']['realert_every'].to_s.length > 0
       realert_every = @event['check']['realert_every'].to_i
     else
-      realert_every = -1
+      realert_every = 10
     end
 
     # volatile checks repair themselfs, after a second check they always be
