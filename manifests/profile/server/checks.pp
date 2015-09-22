@@ -10,4 +10,12 @@ class sys11sensu::profile::server::checks(
   sensu::check { 'sensu-api':
     command     => 'PATH=$PATH:/usr/lib/nagios/plugins check_http -H localhost -p 4567 -e 404',
   }
+
+  sensu::check { 'sensu-rabbitmq':
+    command => '/usr/lib/nagios/plugins/check_tcp -H localhost -p 5672',
+  }
+  sensu::check { 'sensu-redis':
+    command => '/usr/lib/nagios/plugins/check_tcp -H localhost -p 6379',
+  }
+  
 }
