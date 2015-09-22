@@ -14,6 +14,7 @@ class sys11sensu::profile::server::checks(
   sensu::check { 'sensu-rabbitmq':
     command => '/usr/lib/nagios/plugins/check_tcp -H localhost -p 5672',
   }
+  
   sensu::check { 'sensu-redis':
     command => '/usr/lib/nagios/plugins/check_tcp -H localhost -p 6379',
   }
