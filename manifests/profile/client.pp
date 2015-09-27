@@ -4,7 +4,7 @@ class sys11sensu::profile::client(
   $rabbitmq_password = hiera('sys11sensu::rabbitmq_password', undef),
   $rabbitmq_vhost = hiera('sys11sensu::rabbitmq_vhost', undef),
   $safe_mode = hiera('sys11sensu::client::safe_mode', false),
-  $client_custom = hiera_hash('sys11sensu::client::client_custom', {})
+  $client_custom = {},
 ) {
 
   package {'nagios-plugins-basic':
@@ -23,12 +23,10 @@ class sys11sensu::profile::client(
     $client_address = $::ipaddress
   }
 
-  if $::nodetype {
-    $client_custom_real = merge($client_custom, {'nodetype' => $::nodetype,} )
-  } else {
-    $client_custom_real = $client_custom
-  }
-
+  $client_custom_real = merge($client_custom,
+    { 'nodetype'  => $::nodetype,
+      'cloudname' => $::cloudname,
+    })
 
   class { 'sensu':
     rabbitmq_host        => $rabbitmq_host,
