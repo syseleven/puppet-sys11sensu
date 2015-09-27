@@ -24,7 +24,7 @@ class sys11sensu::profile::client(
   }
 
   if $::nodetype {
-    $client_custom_real = merge($client_custom, {'nodetyp' => $::nodetype,} )
+    $client_custom_real = merge($client_custom, {'nodetype' => $::nodetype,} )
   } else {
     $client_custom_real = $client_custom
   }
