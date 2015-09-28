@@ -61,15 +61,35 @@ class Sys11Handler < Sensu::Handler
     end
 
 
+    # [*occurrences*]
+    #   Integer.  The number of event occurrences before the handler should take action. 
+    # Default: 3
+    if @event['check']['occurrences'].to_s.length > 0
+      occurrences = @event['check']['occurrences'].to_i
+    else
+      occurrences = 3
+    end
+    occurrences_event = @event['occurrences']
+
     # only alert on this number of occurrence
     # default on all occurrences
     alert_on_occurrence = @event['check']['alert_on_occurrence'].to_i || -1
+    # add occurrences setting to alert_on_occurrence threshold to have a meaningful effect
+    alert_on_occurrence = alert_on_occurrence.to_i + occurrences.to_i
 
 
-    occurrences = @event['occurrences'].to_i || 0
 
     initial_failing_occurrences = interval > 0 ? (alert_after / interval) : 0
     number_of_failed_attempts = occurrences - initial_failing_occurrences
+
+    if @event['check']['name'] != 'keepalive'
+      if occurrences_event < occurrences
+        bail "not enough occurrences (#{occurrences_event} of #{occurrences})"
+      elsif occurrences_event > occurrences and occurrences_event < realert_every
+        bail "only handling every #{realert_every} occurrences, and we are at" \
+          " #{occurrences_event}"
+      end
+    end
 
     if alert_on_occurrence > 0
       if occurrences != alert_on_occurrence and @event['action'] == 'create'
@@ -80,6 +100,7 @@ class Sys11Handler < Sensu::Handler
     if volatile and @event['action'] == 'resolve'
       bail 'Do not handle resolve action for volatile check'
     end
+
 
     # Don't bother acting if we haven't hit the 
     # alert_after threshold
@@ -99,7 +120,7 @@ class Sys11Handler < Sensu::Handler
         else
           bail "not on a power of two: #{number_of_failed_attempts}"
         end
-      elsif (number_of_failed_attempts - 1) % realert_every != 0
+      elsif (number_of_failed_attempts - 1) % realert_every != 0 and occurrences_event > realert_every
         # Now bail if we are not in the realert_every cycle
         bail "only handling every #{realert_every} occurrences, and we are at" \
           " #{number_of_failed_attempts}"
