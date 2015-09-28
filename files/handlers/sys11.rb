@@ -66,10 +66,20 @@ class Sys11Handler < Sensu::Handler
     alert_on_occurrence = @event['check']['alert_on_occurrence'].to_i || -1
 
 
-    occurrences = @event['occurrences'].to_i || 0
+    # [*occurrences*]
+    #   Integer.  The number of event occurrences before the handler should take action. 
+    # Default: 3
+    occurrences = @event['check']['occurrences'].to_i || 3
+    occurrences_event = @event['occurrences']
 
     initial_failing_occurrences = interval > 0 ? (alert_after / interval) : 0
     number_of_failed_attempts = occurrences - initial_failing_occurrences
+
+    if @event['check']['name'] != 'keepalive'
+      if occurrences_event < occurrences
+        bail "not enough occurrences (#{occurrences_event} of #{occurrences})"
+      end
+    end
 
     if alert_on_occurrence > 0
       if occurrences != alert_on_occurrence and @event['action'] == 'create'
@@ -80,6 +90,7 @@ class Sys11Handler < Sensu::Handler
     if volatile and @event['action'] == 'resolve'
       bail 'Do not handle resolve action for volatile check'
     end
+
 
     # Don't bother acting if we haven't hit the 
     # alert_after threshold
