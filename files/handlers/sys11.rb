@@ -60,6 +60,15 @@ class Sys11Handler < Sensu::Handler
       volatile = false
     end
 
+    # enable this option for the following scenario:
+    # multiple nodes have the same check (checking some shared object).
+    # if this setting is true, only send multiple emails instead of one email per host
+    # default: false
+    if @event['check']['group'].to_s.length > 0
+      group = @event['check']['group']
+    else
+      group = false
+    end
 
     # [*occurrences*]
     #   Integer.  The number of event occurrences before the handler should take action. 
@@ -77,8 +86,35 @@ class Sys11Handler < Sensu::Handler
     # add occurrences setting to alert_on_occurrence threshold to have a meaningful effect
     alert_on_occurrence = alert_on_occurrence.to_i + occurrences.to_i
 
+    if group
+      begin
+        clients = api_request(:GET, '/clients/').body
+        clients = JSON.parse(clients)
+        checks = []
 
+        clients.each do |client|
+          check = api_request(:GET, '/results/' + client['name'] + '/' + @event['check']['name']).body
 
+          # match only existing checks and those who are not on ok-state
+          if ! check.empty?
+            check = JSON.parse(check)
+            if check['check']['status'] != 0
+              checks << check
+            end
+          end
+        end
+
+        # only the first machine should send trigger an event
+        if @event['client']['name'] != checks[0]['client']
+          bail("Only handling check for #{checks[0]['client']} because you are filtering it by group")
+        end
+      rescue => e
+        puts 'Could not get group content'
+        puts e.to_s
+      end
+    end
+
+    
     initial_failing_occurrences = interval > 0 ? (alert_after / interval) : 0
     number_of_failed_attempts = occurrences - initial_failing_occurrences
 
