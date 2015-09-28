@@ -91,12 +91,14 @@ class Sys11Handler < Sensu::Handler
         clients = api_request(:GET, '/clients/').body
         clients = JSON.parse(clients)
         checks = []
+        count = 0
 
         clients.each do |client|
           check = api_request(:GET, '/results/' + client['name'] + '/' + @event['check']['name']).body
 
           # match only existing checks and those who are not on ok-state
           if ! check.empty?
+            count += 1
             check = JSON.parse(check)
             if check['check']['status'] != 0
               checks << check
@@ -104,9 +106,15 @@ class Sys11Handler < Sensu::Handler
           end
         end
 
-        # only the first machine should send trigger an event
-        if @event['client']['name'] != checks[0]['client']
-          bail("Only handling check for #{checks[0]['client']} because you are filtering it by group")
+        # sort array of hashes by 'client' name in hash
+        checks.sort_by! { |name| name['client'] }
+        
+        # when all services have non-ok-state
+        if count == checks.length
+          # only the first machine should send trigger an event
+          if @event['client']['name'] != checks[0]['client']
+            bail("Only handling check for #{checks[0]['client']} because you are filtering it by group")
+          end
         end
       rescue => e
         puts 'Could not get group content'
