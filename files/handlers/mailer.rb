@@ -39,7 +39,11 @@ class Mailer < Sys11Handler
    :required => false
 
   def short_name
-    @event['client']['name'] + '/' + @event['check']['name']
+    if @event['client'].has_key?('nodetype')
+      '[' + @event['client']['name'].split('.').first + '] ' + @event['client']['nodetype'] + '/' + @event['check']['name']
+    else
+      @event['client']['name'] + '/' + @event['check']['name']
+    end
   end
 
   def action_to_string

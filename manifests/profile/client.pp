@@ -4,6 +4,7 @@ class sys11sensu::profile::client(
   $rabbitmq_password = hiera('sys11sensu::rabbitmq_password', undef),
   $rabbitmq_vhost = hiera('sys11sensu::rabbitmq_vhost', undef),
   $safe_mode = hiera('sys11sensu::client::safe_mode', false),
+  $client_custom = {},
 ) {
 
   package {'nagios-plugins-basic':
@@ -22,6 +23,11 @@ class sys11sensu::profile::client(
     $client_address = $::ipaddress
   }
 
+  $client_custom_real = merge($client_custom,
+    { 'nodetype'  => $::nodetype,
+      'cloudname' => $::cloudname,
+    })
+
   class { 'sensu':
     rabbitmq_host        => $rabbitmq_host,
     rabbitmq_user        => $rabbitmq_user,
@@ -32,6 +38,7 @@ class sys11sensu::profile::client(
     sensu_plugin_version => installed,
     purge_config         => true,
     client_address       => $client_address,
+    client_custom        => $client_custom_real,
   }
 
   # currently broken in upstream module, always retriggers the subscription
