@@ -94,6 +94,7 @@ class Mailer < Sys11Handler
     smtp_enable_starttls_auto = settings[json_config]['smtp_enable_starttls_auto'] == "false" ? false : true
     output = "#{@event['check']['output']}".gsub(/(-p|-P|--password)\s*\S+/, '\1 <password redacted>')
     command = "#{@event['check']['command']}".gsub(/(-p|-P|--password)\s*\S+/, '\1 <password redacted>')
+    other_services = pretty_print_same_services()
 
     playbook = "Playbook:  #{@event['check']['playbook']}" if @event['check']['playbook']
     body = <<-BODY.gsub(/^\s+/, '')
@@ -107,6 +108,7 @@ class Mailer < Sys11Handler
             Status:  #{status_to_string}
             Occurrences:  #{@event['occurrences']}
             #{playbook}
+            #{other_services}
           BODY
     if @event['check']['notification'].nil?
       subject = "#{action_to_string} - #{short_name}: #{status_to_string}"
