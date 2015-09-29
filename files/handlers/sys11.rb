@@ -80,20 +80,20 @@ class Sys11Handler < Sensu::Handler
 
 
     initial_failing_occurrences = interval > 0 ? (alert_after / interval) : 0
-    number_of_failed_attempts = occurrences - initial_failing_occurrences
+    number_of_failed_attempts = occurrences_event - initial_failing_occurrences
 
     if @event['check']['name'] != 'keepalive'
       if occurrences_event < occurrences
         bail "not enough occurrences (#{occurrences_event} of #{occurrences})"
       elsif occurrences_event > occurrences and occurrences_event < realert_every
-        bail "only handling every #{realert_every} occurrences, and we are at" \
+        bail "(occurrences) only handling every #{realert_every} occurrences, and we are at" \
           " #{occurrences_event}"
       end
     end
 
     if alert_on_occurrence > 0
       if occurrences != alert_on_occurrence and @event['action'] == 'create'
-        bail "Only handling #{alert_on_occurrence} occurrences and we are at #{occurrences}"
+        bail "(alert_on_occurrence) Only handling #{alert_on_occurrence} occurrences and we are at #{occurrences}"
       end
     end
 
@@ -122,7 +122,7 @@ class Sys11Handler < Sensu::Handler
         end
       elsif (number_of_failed_attempts - 1) % realert_every != 0 and occurrences_event > realert_every
         # Now bail if we are not in the realert_every cycle
-        bail "only handling every #{realert_every} occurrences, and we are at" \
+        bail "(realert_every) only handling every #{realert_every} occurrences, and we are at" \
           " #{number_of_failed_attempts}"
       end
     end
