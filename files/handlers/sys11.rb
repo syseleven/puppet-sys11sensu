@@ -12,6 +12,8 @@ require 'sensu-handler'
 COLOR_REGEX = /\e\[(?:(?:[349]|10)[0-7]|[0-9]|[34]8;5;\d{1,3})?m/
 
 class Sys11Handler < Sensu::Handler
+  @same_services = nil
+
   def uncolorize(input)
     input.gsub(COLOR_REGEX, '')
   end
@@ -21,6 +23,51 @@ class Sys11Handler < Sensu::Handler
       x /= 2
     end
     x==1
+  end
+
+  def get_same_non_ok_services
+    begin
+      clients = api_request(:GET, '/clients/').body
+      clients = JSON.parse(clients)
+      checks = []
+      count = 0
+
+      clients.each do |client|
+        check = api_request(:GET, '/results/' + client['name'] + '/' + @event['check']['name']).body
+
+        # match only existing checks and those who are not on ok-state
+        if ! check.empty?
+          count += 1
+          check = JSON.parse(check)
+          if check['check']['status'] != 0
+            checks << check
+          end
+        end
+      end
+
+      # sort array of hashes by 'client' name in hash
+      checks.sort_by! { |name| name['client'] }
+      return [count, checks]
+    rescue => e
+      puts 'Could not get summary content'
+      puts e.to_s
+    end
+  end
+
+  def pretty_print_same_services
+    count, services = @same_services
+    if count > 0 or services.length > 0
+      ret = "#{services.length} out of #{count} other services are non-ok too:\n"
+      services.each do |service|
+        ret.concat("#########################################################\n")
+        ret.concat("Host: #{service['client']}\n")
+        ret.concat("Status: #{service['check']['status']}\n")
+        ret.concat("Output: #{service['check']['output']}\n")
+      end
+      ret
+    else
+      ''
+    end
   end
 
   def filter_repeated
@@ -60,6 +107,17 @@ class Sys11Handler < Sensu::Handler
       volatile = false
     end
 
+    # enable this option for the following scenario:
+    # multiple nodes have the same check (checking some shared object).
+    # if this setting is an integer, only send multiple emails instead of one email per host
+    # The value of the setting determines how many failed checks you need in order to trigger
+    # the alarm
+    # default: false
+    if @event['check']['summary'].to_s.length > 0
+      summary = @event['check']['summary'].to_i
+    else
+      summary = false
+    end
 
     # [*occurrences*]
     #   Integer.  The number of event occurrences before the handler should take action. 
@@ -77,8 +135,20 @@ class Sys11Handler < Sensu::Handler
     # add occurrences setting to alert_on_occurrence threshold to have a meaningful effect
     alert_on_occurrence = alert_on_occurrence.to_i + occurrences.to_i
 
+    if summary
+      @same_services = get_same_non_ok_services()
+      count, checks = @same_services
+      # when the amount of services have non-ok-state
+      if count.to_i < summary.to_i
+        bail("We need #{summary} servers to fail, but only got #{count}")
+      end
+        # only the first machine should send trigger an event
+      if @event['client']['name'] != checks[0]['client']
+        bail("Only handling check for #{checks[0]['client']} because you are filtering it by summary")
+      end
+    end
 
-
+    
     initial_failing_occurrences = interval > 0 ? (alert_after / interval) : 0
     number_of_failed_attempts = occurrences_event - initial_failing_occurrences
 
