@@ -55,9 +55,15 @@ class Sys11Handler < Sensu::Handler
   end
 
   def pretty_print_same_services
-    count, services = @same_services
-    if count > 0 or services.length > 0
-      ret = "#{services.length} out of #{count} other services are non-ok too:\n"
+    begin
+      count, services = @same_services
+      len = services.length
+    rescue
+      count = 0
+      len = 0
+    end
+    if (count > 0) or (len > 0)
+      ret = "#{len} out of #{count} other services are non-ok too:\n"
       services.each do |service|
         ret.concat("#########################################################\n")
         ret.concat("Host: #{service['client']}\n")
