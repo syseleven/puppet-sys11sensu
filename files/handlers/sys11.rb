@@ -158,6 +158,16 @@ class Sys11Handler < Sensu::Handler
     initial_failing_occurrences = interval > 0 ? (alert_after / interval) : 0
     number_of_failed_attempts = occurrences_event - initial_failing_occurrences
 
+
+    if volatile and @event['action'] == 'resolve'
+      bail 'Do not handle resolve action for volatile check'
+    end
+
+    if @event['action'] == 'resolve'
+      # do not filter any further resolve events
+      return
+    end
+
     if @event['check']['name'] != 'keepalive'
       if occurrences_event < occurrences
         bail "not enough occurrences (#{occurrences_event} of #{occurrences})"
@@ -172,11 +182,6 @@ class Sys11Handler < Sensu::Handler
         bail "(alert_on_occurrence) Only handling #{alert_on_occurrence} occurrences and we are at #{occurrences}"
       end
     end
-
-    if volatile and @event['action'] == 'resolve'
-      bail 'Do not handle resolve action for volatile check'
-    end
-
 
     # Don't bother acting if we haven't hit the 
     # alert_after threshold
