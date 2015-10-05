@@ -141,6 +141,15 @@ class Sys11Handler < Sensu::Handler
     # add occurrences setting to alert_on_occurrence threshold to have a meaningful effect
     alert_on_occurrence = alert_on_occurrence.to_i + occurrences.to_i
 
+    if volatile and @event['action'] == 'resolve'
+      bail 'Do not handle resolve action for volatile check'
+    end
+
+    if @event['action'] == 'resolve'
+      # do not filter any further resolve events
+      return
+    end
+
     if summary
       @same_services = get_same_non_ok_services()
       count, checks = @same_services
@@ -154,19 +163,8 @@ class Sys11Handler < Sensu::Handler
       end
     end
 
-    
     initial_failing_occurrences = interval > 0 ? (alert_after / interval) : 0
     number_of_failed_attempts = occurrences_event - initial_failing_occurrences
-
-
-    if volatile and @event['action'] == 'resolve'
-      bail 'Do not handle resolve action for volatile check'
-    end
-
-    if @event['action'] == 'resolve'
-      # do not filter any further resolve events
-      return
-    end
 
     if @event['check']['name'] != 'keepalive'
       if occurrences_event < occurrences
