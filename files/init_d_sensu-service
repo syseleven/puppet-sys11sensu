@@ -235,6 +235,7 @@ start() {
 }
 
 stop() {
+if [[ $sensu_service = sensu-client ]]; then
     log_daemon_msg "Stopping $sensu_service"
 
     # try pgrep
@@ -259,6 +260,45 @@ stop() {
       log_action_msg "$sensu_service is stopped"
       return 3
     fi
+else
+    log_daemon_msg "Stopping $sensu_service"
+
+    # try pgrep
+    pid=$(pid_pgrep)
+
+    if [ ! -n "$pid" ]; then
+        # try the pid file
+        if [ -f "$pidfile" ] ; then
+            read pid < "$pidfile"
+        fi
+    fi
+
+    if [ -n "$pid" ]; then
+        kill $pid
+
+        retval=$?
+
+        if [ $retval -eq 0 ]; then
+            wait_for_stop
+
+            retval=$?
+
+            if [ $retval -eq 0 ]; then
+                echo_ok
+            else
+                log_failure_msg "Timed out waiting for $sensu_service to stop"
+                echo_fail
+            fi
+        else
+            echo_fail
+        fi
+
+        return $retval
+    else
+      log_action_msg "$sensu_service is stopped"
+      return 3
+    fi
+fi
 }
 
 status() {
