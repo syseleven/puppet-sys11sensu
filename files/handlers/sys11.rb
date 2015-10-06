@@ -115,8 +115,7 @@ class Sys11Handler < Sensu::Handler
     # enable this option for the following scenario:
     # multiple nodes have the same check (checking some shared object).
     # if this setting is an integer, only send multiple emails instead of one email per host
-    # The value of the setting determines how many failed checks you need in order to trigger
-    # the alarm
+    # if more than $summary services are down, send only mail from the first one
     # default: false
     if @event['check']['summary'].to_s.length > 0
       summary = @event['check']['summary'].to_i
