@@ -34,13 +34,12 @@ class Sys11Handler < Sensu::Handler
 
       clients.each do |client|
         check = api_request(:GET, '/results/' + client['name'] + '/' + @event['check']['name']).body
-
         # match only existing checks and those who are not on ok-state
         if ! check.empty?
-          count += 1
           check = JSON.parse(check)
+          checks << check
           if check['check']['status'] != 0
-            checks << check
+            count += 1
           end
         end
       end
@@ -63,7 +62,7 @@ class Sys11Handler < Sensu::Handler
       len = 0
     end
     if (count > 0) or (len > 0)
-      ret = "#{len} out of #{count} other services are non-ok too:\n"
+      ret = "#{len} out of #{count} other services are non-ok:\n"
       services.each do |service|
         ret.concat("#########################################################\n")
         ret.concat("Host: #{service['client']}\n")
@@ -148,13 +147,12 @@ class Sys11Handler < Sensu::Handler
     if summary
       @same_services = get_same_non_ok_services()
       count, checks = @same_services
-      # when the amount of services have non-ok-state
-      if count.to_i < summary.to_i
-        bail("We need #{summary} servers to fail, but only got #{count}")
-      end
+      # if more than $summary services are down, send only mail when it comes from the first one
+      if count.to_i >= summary.to_i
         # only the first machine should send trigger an event
-      if @event['client']['name'] != checks[0]['client']
-        bail("Only handling check for #{checks[0]['client']} because you are filtering it by summary")
+        if @event['client']['name'] != checks[0]['client']
+          bail("Only handling check for #{checks[0]['client']} because you are filtering it by summary and there are #{count} out of #{summary} non-ok services too")
+        end
       end
     end
 
