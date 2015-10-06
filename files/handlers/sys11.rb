@@ -171,8 +171,8 @@ class Sys11Handler < Sensu::Handler
     end
 
     if alert_on_occurrence > 0
-      if occurrences != alert_on_occurrence and @event['action'] == 'create'
-        bail "(alert_on_occurrence) Only handling #{alert_on_occurrence} occurrences and we are at #{occurrences}"
+      if occurrences_event != alert_on_occurrence and @event['action'] == 'create'
+        bail "(alert_on_occurrence) Only handling #{alert_on_occurrence} occurrences and we are at #{occurrences_event}"
       end
     end
 
