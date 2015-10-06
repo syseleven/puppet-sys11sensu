@@ -145,11 +145,6 @@ class Sys11Handler < Sensu::Handler
       bail 'Do not handle resolve action for volatile check'
     end
 
-    if @event['action'] == 'resolve'
-      # do not filter any further resolve events
-      return
-    end
-
     if summary
       @same_services = get_same_non_ok_services()
       count, checks = @same_services
@@ -169,7 +164,7 @@ class Sys11Handler < Sensu::Handler
     if @event['check']['name'] != 'keepalive'
       if occurrences_event < occurrences
         bail "not enough occurrences (#{occurrences_event} of #{occurrences})"
-      elsif occurrences_event > occurrences and occurrences_event < realert_every
+      elsif occurrences_event > occurrences and occurrences_event < realert_every and not @event['action'] == 'resolve'
         bail "(occurrences) only handling every #{realert_every} occurrences, and we are at" \
           " #{occurrences_event}"
       end
@@ -199,7 +194,7 @@ class Sys11Handler < Sensu::Handler
         else
           bail "not on a power of two: #{number_of_failed_attempts}"
         end
-      elsif (number_of_failed_attempts - 1) % realert_every != 0 and occurrences_event > realert_every
+      elsif (number_of_failed_attempts - 1) % realert_every != 0 and occurrences_event > realert_every and not @event['action'] == 'resolve'
         # Now bail if we are not in the realert_every cycle
         bail "(realert_every) only handling every #{realert_every} occurrences, and we are at" \
           " #{number_of_failed_attempts}"
