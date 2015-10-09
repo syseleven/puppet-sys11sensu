@@ -14,6 +14,23 @@ COLOR_REGEX = /\e\[(?:(?:[349]|10)[0-7]|[0-9]|[34]8;5;\d{1,3})?m/
 class Sys11Handler < Sensu::Handler
   @same_services = nil
 
+  def action_to_string
+   @event['action'].eql?('resolve') ? "RESOLVED" : "ALERT"
+  end
+
+  def status_to_string
+    case @event['check']['status']
+    when 0
+      'OK'
+    when 1
+      'WARNING'
+    when 2
+      'CRITICAL'
+    else
+      'UNKNOWN'
+    end
+  end
+
   def uncolorize(input)
     input.gsub(COLOR_REGEX, '')
   end
@@ -76,6 +93,20 @@ class Sys11Handler < Sensu::Handler
   end
 
   def filter_repeated
+    if @event['check'].include? 'notification_types'
+      @notification_types = @event['check']['notification_types']
+    else
+      @notification_types = ['email']
+    end
+
+    if @event['check'].include? 'notification_targets'
+      @notification_targets = @event['check']['notification_targets']
+    else
+      @notification_targets = Hash.new
+      @notification_targets['email'] = 'emaildefault' # TODO 
+      @notification_targets['sms'] = 'smsdefault' # TODO
+    end
+
     if @event['check']['name'] == 'keepalive'
       # Keepalives are a special case because they don't emit an interval.
       # They emit a heartbeat every 20 seconds per
