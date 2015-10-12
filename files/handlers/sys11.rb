@@ -96,15 +96,15 @@ class Sys11Handler < Sensu::Handler
     if @event['check'].include? 'notification_types'
       @notification_types = @event['check']['notification_types']
     else
-      @notification_types = ['email']
+      @notification_types = settings['notifications']['notification_types'] || false
     end
 
     if @event['check'].include? 'notification_targets'
       @notification_targets = @event['check']['notification_targets']
     else
       @notification_targets = Hash.new
-      @notification_targets['email'] = 'emaildefault' # TODO 
-      @notification_targets['sms'] = 'smsdefault' # TODO
+      @notification_targets['email'] = settings['notifications']['notification_targets']['email'] || false
+      @notification_targets['sms'] = settings['notifications']['notification_targets']['sms'] || false
     end
 
     if @event['check']['name'] == 'keepalive'

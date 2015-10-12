@@ -17,6 +17,11 @@ Sys11wrapper for Sensu monitoring
         source: git@gitlab.syseleven.de:puppet-manifests/syseleven-base.git
         include:
           - modules/exim
+      '/opt/syseleven-private':
+        source: git@gitlab.syseleven.de:puppet-manifests/syseleven-private.git
+        include:
+          - modules/txt2sms
+
       
     exim::role: admin
     exim::postmaster: tf-platform@syseleven.de
@@ -35,3 +40,13 @@ Sys11wrapper for Sensu monitoring
       'admin2': 'pw2'
     sys11sensu::uchiwa_users:
       'user1': 'pw1'
+
+    sys11sensu::profile::server::notifications:
+      'notifications':
+        'notification_targets':
+          sms:
+            - +49151foo
+            - sms2
+        'notification_types':
+          - sms
+          - email

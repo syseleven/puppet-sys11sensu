@@ -15,6 +15,7 @@ require "#{File.dirname(__FILE__)}/sys11"
 class Sms < Sys11Handler
   def handle
     puts @notification_targets.inspect
+    puts @notification_types.inspect
     exit()
 
 
