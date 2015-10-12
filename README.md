@@ -20,7 +20,7 @@ Sys11wrapper for Sensu monitoring
       '/opt/syseleven-private':
         source: git@gitlab.syseleven.de:puppet-manifests/syseleven-private.git
         include:
-          - modules/txt2sms
+          - modules/txt_to_sms
 
       
     exim::role: admin
