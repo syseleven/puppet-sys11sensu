@@ -93,18 +93,26 @@ class Sys11Handler < Sensu::Handler
   end
 
   def filter_repeated
+    if not settings['notifications'].is_a?(Hash)
+      settings['notifications'] = Hash.new
+    end
+
+    puts settings['notifications']['foo'].inspect
     if @event['check'].include? 'notification_types'
-      @notification_types = @event['check']['notification_types']
+      settings['notifications']['notification_types'] = @event['check']['notification_types']
     else
-      @notification_types = settings['notifications']['notification_types'] || false
+      settings['notifications']['notification_types'] ||= false
+    end
+
+    if not settings['notifications']['notification_targets'].is_a?(Hash)
+      settings['notifications']['notification_targets'] = Hash.new
     end
 
     if @event['check'].include? 'notification_targets'
-      @notification_targets = @event['check']['notification_targets']
+      settings['notifications']['notification_targets'] =  @event['check']['notification_targets']
     else
-      @notification_targets = Hash.new
-      @notification_targets['email'] = settings['notifications']['notification_targets']['email'] || false
-      @notification_targets['sms'] = settings['notifications']['notification_targets']['sms'] || false
+      settings['notifications']['notification_targets']['email'] ||= false
+      settings['notifications']['notification_targets']['sms'] ||= false
     end
 
     if @event['check']['name'] == 'keepalive'

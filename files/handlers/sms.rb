@@ -14,22 +14,26 @@ require "#{File.dirname(__FILE__)}/sys11"
 
 class Sms < Sys11Handler
   def handle
-    puts @notification_targets.inspect
-    puts @notification_types.inspect
+    puts settings['notifications']['notification_targets'].inspect
+    puts settings['notifications']['notification_types'].inspect
+    puts @settings['notifications']['foo'].inspect
     exit()
 
 
     if not @notification_targets.include? 'sms'
-      bail('Missing sms-notification_target. Got no default')
+      raise 'Missing sms-notification_target. Got no default'
     end
 
     # cut check output to first 100 characters
     output = "#{@event['check']['output'][0..99]}"
     text = "#{status_to_string}: #{@event['client']['name']} #{@event['check']['name']} #{output}"
 
-    @notification_targets['sms'].each do |target|
-      # TODO add actual command here
-      puts "txt2sms -s FROM -d #{target} -m #{text}"
+    settings['notifications']['notification_targets']['sms'].each do |target|
+      ret = `echo txt2sms -s FROM -d #{target} -m "#{text}" 2>&1`
+      if not $?.success?
+        puts "txt2sms did not successully finish for #{target} (#{text}): #{ret}"
+      end
+      puts ret
     end
   end
 end
