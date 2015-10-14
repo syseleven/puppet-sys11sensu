@@ -42,11 +42,9 @@ Sys11wrapper for Sensu monitoring
       'user1': 'pw1'
 
     sys11sensu::profile::server::notifications:
-      'notifications':
-        'notification_targets':
-          sms:
+      notifications:
+        sms:
+          targets:
             - +49151foo
             - sms2
-        'notification_types':
-          - sms
-          - email
+          source: sensu

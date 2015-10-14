@@ -92,28 +92,33 @@ class Sys11Handler < Sensu::Handler
     end
   end
 
-  def filter_repeated
+  def sms_settings
     if not settings['notifications'].is_a?(Hash)
       settings['notifications'] = Hash.new
     end
 
-    puts settings['notifications']['foo'].inspect
-    if @event['check'].include? 'notification_types'
-      settings['notifications']['notification_types'] = @event['check']['notification_types']
+    if settings['notifications'].include? 'sms'
+      # override sms default targets with check custom values
+      if @event['check'].include? 'sms' and not @event['check']['sms'] == true
+        settings['notifications']['sms']['targets'] = @event['check']['sms']
+      end
     else
-      settings['notifications']['notification_types'] ||= false
+      if @event['check'].include? 'sms' and not @event['check']['sms'] == true
+        settings['notifications']['sms'] = Hash.new
+        settings['notifications']['sms']['targets'] = @event['check']['sms']
+      else
+        settings['notifications']['sms'] = false
+      end
     end
 
-    if not settings['notifications']['notification_targets'].is_a?(Hash)
-      settings['notifications']['notification_targets'] = Hash.new
+    # fore sms disable via check custom value
+    if @event['check'].include? 'sms' and @event['check']['sms'] == false
+      settings['notifications']['sms'] = false
     end
+  end
 
-    if @event['check'].include? 'notification_targets'
-      settings['notifications']['notification_targets'] =  @event['check']['notification_targets']
-    else
-      settings['notifications']['notification_targets']['email'] ||= false
-      settings['notifications']['notification_targets']['sms'] ||= false
-    end
+  def filter_repeated
+    sms_settings()
 
     if @event['check']['name'] == 'keepalive'
       # Keepalives are a special case because they don't emit an interval.
