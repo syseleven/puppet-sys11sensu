@@ -14,10 +14,10 @@ require "#{File.dirname(__FILE__)}/sys11"
 
 class Sms < Sys11Handler
   def handle
-    # debug
-    #puts settings['notifications']['notification_targets'].inspect
-    #puts settings['notifications']['notification_types'].inspect
-    puts settings['notifications'].inspect
+    if ENV['DEBUG'] == 'true'
+      debug = true
+      puts settings['notifications'].inspect
+    end
 
     if settings['notifications']['sms'] == false
       # do nothing
@@ -35,7 +35,11 @@ class Sms < Sys11Handler
     text = "#{status_to_string}: #{@event['client']['name']} #{@event['check']['name']} #{output}"
 
     settings['notifications']['sms']['targets'].each do |target|
-      ret = `echo txt2sms -s #{source} -d #{target} -m "#{text}" 2>&1`
+      if debug
+        ret = `echo txt2sms -s #{source} -d #{target} -m "#{text}" 2>&1`
+      else
+        ret = `txt2sms -s #{source} -d #{target} -m "#{text}" 2>&1`
+      end
       if $?.success?
         puts "txt2sms successully send sms: #{target} (#{text}): #{ret}"
       else
