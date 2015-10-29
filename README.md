@@ -48,3 +48,5 @@ Sys11wrapper for Sensu monitoring
             - +49151foo
             - sms2
           source: sensu
+          # only send SMS between 0900 and 1659
+          nine_to_five: true
