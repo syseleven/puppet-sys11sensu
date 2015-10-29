@@ -27,7 +27,7 @@ class Sms < Sys11Handler
     if not settings['notifications']['sms'].include? 'source' or settings['notifications']['sms'] == true
       raise 'Missing sms source address. Got no default'
     else
-      source = settings['notifications']['sms']
+      source = settings['notifications']['sms']['source']
     end
 
     # cut check output to first 100 characters
@@ -36,9 +36,9 @@ class Sms < Sys11Handler
 
     settings['notifications']['sms']['targets'].each do |target|
       if debug
-        ret = `echo txt2sms -s #{source} -d #{target} -m "#{text}" 2>&1`
+        ret = `echo txt2sms -s "#{source}" -d "#{target}" -m "#{text}" 2>&1`
       else
-        ret = `txt2sms -s #{source} -d #{target} -m "#{text}" 2>&1`
+        ret = `txt2sms -s "#{source}" -d "#{target}" -m "#{text}" 2>&1`
       end
       if $?.success?
         puts "txt2sms successully send sms: #{target} (#{text}): #{ret}"
