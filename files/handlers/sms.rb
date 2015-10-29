@@ -24,6 +24,14 @@ class Sms < Sys11Handler
       exit()
     end
 
+    # Only send notifications between 0900 - 1659 when nine_to_five is true
+    if settings['notifications']['sms']['nine_to_five'] == true
+      if Time.now.hour.between?(10, 16)
+        raise 'Not sending SMS. nine_to_five is enabled and it is not between 0900 and 1659.'
+        exit()
+      end
+    end
+
     if not settings['notifications']['sms'].include? 'source' or settings['notifications']['sms'] == true
       raise 'Missing sms source address. Got no default'
     else
