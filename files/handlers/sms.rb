@@ -26,7 +26,7 @@ class Sms < Sys11Handler
 
     # Only send notifications between 0900 - 1659 when nine_to_five is true
     if settings['notifications']['sms']['nine_to_five'] == true
-      if Time.now.hour.between?(10, 16)
+      if not Time.now.hour.between?(9, 16)
         raise 'Not sending SMS. nine_to_five is enabled and it is not between 0900 and 1659.'
         exit()
       end
@@ -38,9 +38,10 @@ class Sms < Sys11Handler
       source = settings['notifications']['sms']['source']
     end
 
-    # cut check output to first 100 characters
-    output = "#{@event['check']['output'][0..99]}"
+    output = "#{@event['check']['output']}"
     text = "#{status_to_string}: #{@event['client']['name']} #{@event['check']['name']} #{output}"
+    # Cut the SMS text to 159 characters
+    text = text[0..158]
 
     settings['notifications']['sms']['targets'].each do |target|
       if debug
