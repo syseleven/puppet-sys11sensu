@@ -28,7 +28,6 @@ class Sms < Sys11Handler
     if settings['notifications']['sms']['nine_to_five'] == true
       if not Time.now.hour.between?(9, 16)
         raise 'Not sending SMS. nine_to_five is enabled and it is not between 0900 and 1659.'
-        exit()
       end
     end
 
