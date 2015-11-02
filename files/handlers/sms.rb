@@ -13,7 +13,32 @@ require 'timeout'
 require "#{File.dirname(__FILE__)}/sys11"
 
 class Sms < Sys11Handler
+  def filter_notification_states
+    # This function takes a configured list as input and checks whether the
+    # current event's status matches the configured list. If not, the event
+    # is not further handled.
+    
+    notification_states = settings['notifications']['sms']['notification_states'] || [0, 1, 2, 3]
+    # convert array values to integers
+    notification_states = notification_states.map(&:to_i)
+
+    #puts @event['check']['history'].inspect
+    # see if the latest service state was a valid state for the SMS handler to handle
+    # (when a state changes from warning to ok, it may not send a SMS)
+    if @event['action'] == 'resolve'
+      if not notification_states.include? @event['check']['history'][-2].to_i
+        bail("Not handling this event, because last known state (#{@event['check']['history'][-2]}) is not configured to be SMS worthy")
+      end
+    end
+
+    puts @event['check'].inspect
+    if not notification_states.include? @event['check']['status'].to_i
+      bail("Not handling this event, because current state (#{@event['check']['status']}) is not configured to be SMS worthy")
+    end
+  end
+
   def handle
+
     if ENV['DEBUG'] == 'true'
       debug = true
       puts settings['notifications'].inspect
@@ -30,6 +55,9 @@ class Sms < Sys11Handler
         raise 'Not sending SMS. nine_to_five is enabled and it is not between 0900 and 1659.'
       end
     end
+
+    # filter notification states
+    filter_notification_states
 
     if not settings['notifications']['sms'].include? 'source' or settings['notifications']['sms'] == true
       raise 'Missing sms source address. Got no default'

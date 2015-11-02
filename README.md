@@ -50,3 +50,5 @@ Sys11wrapper for Sensu monitoring
           source: sensu
           # only send SMS between 0900 and 1659
           nine_to_five: true
+          # only send events for following states
+          notification_states: [0, 2] # OK and CRITICAL
