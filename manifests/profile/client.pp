@@ -5,6 +5,10 @@ class sys11sensu::profile::client(
   $rabbitmq_vhost = hiera('sys11sensu::rabbitmq_vhost', undef),
   $safe_mode = hiera('sys11sensu::client::safe_mode', false),
   $client_custom = {},
+  # add new repo, will be upstream soon
+  $sensu_repo_source = hiera('sensu::repo_source', 'http://repositories.sensuapp.org/apt/'),
+  $sensu_repo_key_source = hiera('sensu::repo_key_source','http://repositories.sensuapp.org/apt/pubkey.gpg'),
+  $sensu_repo_key_id = hiera('sensu::repo_key_id','EB9C94BB'),
 ) {
 
   package {'nagios-plugins-basic':
@@ -39,6 +43,9 @@ class sys11sensu::profile::client(
     purge_config         => true,
     client_address       => $client_address,
     client_custom        => $client_custom_real,
+    repo_source          => $sensu_repo_source,
+    repo_key_id          => $sensu_repo_key_id,
+    repo_key_source      => $sensu_repo_key_source,
   }
 
   # currently broken in upstream module, always retriggers the subscription
