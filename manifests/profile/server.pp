@@ -17,6 +17,10 @@ class sys11sensu::profile::server(
   $uchiwa_admins = hiera_hash('sys11sensu::uchiwa_admins', {} ),
   $uchiwa_users = hiera_hash('sys11sensu::uchiwa_users', {} ),
   $stashnotifier_enabled = hiera('sys11sensu::stashnotifier::enabled', false),
+  # add new repo, will be upstream soon
+  $sensu_repo_source = hiera('sensu::repo_source', 'http://repositories.sensuapp.org/apt/'),
+  $sensu_repo_key_source = hiera('sensu::repo_key_source','http://repositories.sensuapp.org/apt/pubkey.gpg'),
+  $sensu_repo_key_id = hiera('sensu::repo_key_id','EB9C94BB'),
 ) {
   include sys11sensu::profile::server::handlers
   include sys11sensu::profile::server::checks
@@ -45,18 +49,16 @@ class sys11sensu::profile::server(
 
 
   class { '::sensu':
-    rabbitmq_password => $rabbitmq_password,
-    rabbitmq_user     => $rabbitmq_user,
-    rabbitmq_vhost    => $rabbitmq_vhost,
-    server            => true,
-    api               => true,
+    rabbitmq_password    => $rabbitmq_password,
+    rabbitmq_user        => $rabbitmq_user,
+    rabbitmq_vhost       => $rabbitmq_vhost,
+    server               => true,
+    api                  => true,
     sensu_plugin_version => installed,
     client_address       => $client_address,
-    #safe_mode        => false,
-    #plugins          => [
-    #  'puppet:///data/sensu/plugins/ntp.rb',
-    #  'puppet:///data/sensu/plugins/postfix.rb'
-    #]
+    repo_source          => $sensu_repo_source,
+    repo_key_id          => $sensu_repo_key_id,
+    repo_key_source      => $sensu_repo_key_source,
   }
 
   #sensu::handler { 'default':
