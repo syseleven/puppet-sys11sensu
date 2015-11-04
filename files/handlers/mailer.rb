@@ -46,22 +46,6 @@ class Mailer < Sys11Handler
     end
   end
 
-  def action_to_string
-   @event['action'].eql?('resolve') ? "RESOLVED" : "ALERT"
-  end
-
-  def status_to_string
-    case @event['check']['status']
-    when 0
-      'OK'
-    when 1
-      'WARNING'
-    when 2
-      'CRITICAL'
-    else
-      'UNKNOWN'
-    end
-  end
 
   def build_mail_to_list
     json_config = config[:json_config] || 'mailer'

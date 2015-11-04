@@ -14,6 +14,23 @@ COLOR_REGEX = /\e\[(?:(?:[349]|10)[0-7]|[0-9]|[34]8;5;\d{1,3})?m/
 class Sys11Handler < Sensu::Handler
   @same_services = nil
 
+  def action_to_string
+   @event['action'].eql?('resolve') ? "RESOLVED" : "ALERT"
+  end
+
+  def status_to_string
+    case @event['check']['status']
+    when 0
+      'OK'
+    when 1
+      'WARNING'
+    when 2
+      'CRITICAL'
+    else
+      'UNKNOWN'
+    end
+  end
+
   def uncolorize(input)
     input.gsub(COLOR_REGEX, '')
   end
@@ -75,7 +92,34 @@ class Sys11Handler < Sensu::Handler
     end
   end
 
+  def sms_settings
+    if not settings['notifications'].is_a?(Hash)
+      settings['notifications'] = Hash.new
+    end
+
+    if settings['notifications'].include? 'sms'
+      # override sms default targets with check custom values
+      if @event['check'].include? 'sms' and not @event['check']['sms'] == true
+        settings['notifications']['sms']['targets'] = @event['check']['sms']
+      end
+    else
+      if @event['check'].include? 'sms' and not @event['check']['sms'] == true
+        settings['notifications']['sms'] = Hash.new
+        settings['notifications']['sms']['targets'] = @event['check']['sms']
+      else
+        settings['notifications']['sms'] = false
+      end
+    end
+
+    # for overriding globally enabled SMS checks by disabling them on a per-check basis
+    if @event['check'].include? 'sms' and @event['check']['sms'] == false
+      settings['notifications']['sms'] = false
+    end
+  end
+
   def filter_repeated
+    sms_settings()
+
     if @event['check']['name'] == 'keepalive'
       # Keepalives are a special case because they don't emit an interval.
       # They emit a heartbeat every 20 seconds per
