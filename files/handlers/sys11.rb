@@ -112,7 +112,7 @@ class Sys11Handler < Sensu::Handler
     end
 
     # for overriding globally enabled SMS checks by disabling them on a per-check basis
-    if @event['check'].include? 'sms' and @event['check']['sms'] == false
+    if @event['check'].include? 'sms' and @event['check']['sms'] == false or @event['check']['sms'].nil?
       settings['notifications']['sms'] = false
     end
   end
